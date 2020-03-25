@@ -1,6 +1,5 @@
 import numpy as np
 from skimage.transform import resize
-import matplotlib.pyplot as plt
 
 def vis_hybrid_image(hybrid_image):
     scales = 5
@@ -12,7 +11,7 @@ def vis_hybrid_image(hybrid_image):
     output = hybrid_image.copy()
     cur_image = hybrid_image.copy()
 
-    for i in xrange(1, scales):
+    for i in range(1, scales):
         output = np.concatenate((output, np.ones((original_height, padding, num_colors))), axis=1)
         cur_image = resize(cur_image, (int(scale_factor*cur_image.shape[0]),
             int(scale_factor*cur_image.shape[1])))

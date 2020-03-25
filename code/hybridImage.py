@@ -1,5 +1,4 @@
 import numpy as np
-from skimage.transform import resize
 from scipy.ndimage.filters import convolve
 import matplotlib.pyplot as plt
 from vis_hybrid_image import vis_hybrid_image
