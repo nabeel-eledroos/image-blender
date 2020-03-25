@@ -33,18 +33,15 @@ def hybrid_image(im1, im2, sigma1, sigma2):
     if im2.max() > 1.0:
         im2 /= 255.0
 
-    f1 = gaussian(6*sigma1+1, sigma1)
-    f1 = f1[:,:,np.newaxis]
-    f2 = gaussian(6*sigma2+1, sigma2)
-    f2 = f2[:,:,np.newaxis]
+    filter = gaussian(6*sigma1+1, sigma1)[:,:,np.newaxis]
 
-    ig1 = convolve(im1, f1)
-    ig2 = convolve(im2, f2)
-    i2 = im2-ig2
-    fim = ig1 + i2
+    im1_gaussian = convolve(im1, filter)
+    im2_gaussian = convolve(im2, filter)
+    im2_sharp = im2-im2_gaussian
+    blend = im1_gaussian + im2_sharp
 
-    np.clip(fim, 0, 1, out = fim)
-    return fim
+    np.clip(blend, 0, 1, out = blend)
+    return blend
 
 if __name__ == '__main__':
     img1 = imread('data/me.jpg')
