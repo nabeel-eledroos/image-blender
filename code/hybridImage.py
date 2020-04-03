@@ -11,7 +11,6 @@ def imread(path):
     #Puts images values in range [0,1]
     if img.max() > 1.0:
         img /= 255.0
-
     return img
 
 def gaussian(hsize=3,sigma=0.5):
@@ -24,6 +23,52 @@ def gaussian(hsize=3,sigma=0.5):
     if sumh != 0:
         h /= sumh
     return h
+
+def unit_vector(vector):
+    return vector / np.linalg.norm(vector)
+
+def angle_between(v1, v2):
+    v1_u = unit_vector(v1)
+    v2_u = unit_vector(v2)
+    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+
+def alignImages(img1, img2, max_shift):
+    #Fix img1 red channel
+    red_ch_img1 = img1[:, :, 0]
+    r1 = red_ch_img1.reshape(-1)
+
+    red_ch_img2 = img2[:, :, 0]
+    # green_ch = img[:, :, 1]
+    # blue_ch = img[:, :, 2]
+
+    img2_shiftx = 0
+    img2_shifty = 0
+    min_angle = 1000
+    # bshiftx = 0
+    # bshifty = 0
+    # min2 = 1000
+    for x in range(-max_shift[0], max_shift[0]+1):
+        for y in range(-max_shift[1], max_shift[1]+1):
+            r2 = np.roll(red_ch_img2, [x, y], axis=[0, 1]).reshape(-1)
+            ang = angle_between(r1, r2)
+            if(ang < min_angle):
+                min_angle = ang
+                img2_shiftx = x
+                img2_shifty = y
+
+    print(img2_shiftx)
+    print(img2_shifty)
+    img2[:, :, 0] = np.roll(img2[:, :, 0], [img2_shiftx, img2_shifty], axis=[0, 1])
+    img2[:, :, 1] = np.roll(img2[:, :, 1], [img2_shiftx, img2_shifty], axis=[0, 1])
+    img2[:, :, 2] = np.roll(img2[:, :, 2], [img2_shiftx, img2_shifty], axis=[0, 1])
+
+    # img2 = img2[5:,5:,:]
+    # img2 = img2[:-5,:-5,:]
+
+    # final_shift = np.array([[gshiftx, gshifty], [bshiftx, bshifty]])
+
+    return img2
+
 
 def hybrid_image(im1, im2, sigma1, sigma2):
     im1 = im1.astype(float)
@@ -44,8 +89,14 @@ def hybrid_image(im1, im2, sigma1, sigma2):
     return blend
 
 if __name__ == '__main__':
-    img1 = imread('data/me.jpg')
-    img2 = imread('data/monkey2.jpg')
+    img1 = imread('data/jay2.jpg')
+    img2 = imread('data/ye2.jpg')
+    max_shift = np.array([15, 15])
+
     #8 and 12
-    plt.imshow(vis_hybrid_image(hybrid_image(img1, img2, 8, 12)))
+    # plt.imshow(vis_hybrid_image(hybrid_image(img1, img2, 4, 8))
+    img2_aligned = alignImages(img1, img2, max_shift)
+    plt.imshow(img2 - img2_aligned)
+    # plt.imshow(hybrid_image(img1, img2_aligned, 4, 8))
+    # plt.imshow(hybrid_image(img1, img2, 4, 8))
     plt.show()
